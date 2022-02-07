@@ -46,3 +46,38 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.metabase.outputs.tags }}
           labels: ${{ steps.metabase.outputs.labels }}
+
+  build-rust:
+    needs: build-base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository checkout
+        uses: actions/checkout@v2
+
+      - name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare Docker tags
+        id: metarust
+        uses: docker/metadata-action@v3
+        with:
+          images:
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            latest=false
+          tags: |
+            type=schedule,pattern=rust-{{date 'YYYYMMDD'}}
+            rust
+
+      - name: Build and push base container
+        uses: docker/build-push-action@v2
+        with:
+          context: rust
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.metarust.outputs.tags }}
+          labels: ${{ steps.metarust.outputs.labels }}

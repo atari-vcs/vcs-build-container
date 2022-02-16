@@ -11,10 +11,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 COPY atari.list /etc/apt/sources.list.d/
 COPY atari /etc/apt/preferences.d/
 
-RUN apt-get update && \
+RUN apt-get update &&     \
     apt-get upgrade -y && \
-    apt-get install -y \
+    apt-get install -y    \
       bash                \
+      git                 \
       pkg-config          \
       build-essential     \
       libsdl2-dev         \
@@ -31,4 +32,3 @@ RUN apt-get update && \
       zlib1g-dev          \
       libsdl2-ttf-dev
 ## FIXME: Add X11 libraries
-
